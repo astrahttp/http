@@ -43,6 +43,7 @@ final class WorkerRuntime
         return (int) $port;
     }
 
+/**
     private function getExecutablePathOld(): string
     {
         if ($this->executablePath !== null) {
@@ -96,6 +97,19 @@ final class WorkerRuntime
         };
     
         return $this->executablePath = $baseDir . DIRECTORY_SEPARATOR . $fileName;
+    }
+*/
+    private function getExecutablePath(): string
+    {
+        if ($this->executablePath !== null) {
+            return $this->executablePath;
+        }
+
+        $baseDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'exec';
+        $osName  = \Astra\Http\WorkerDownloader::getOsName();
+        $archName = \Astra\Http\WorkerDownloader::getArchName();
+
+        return \Astra\Http\WorkerDownloader::buildFileName($osName, $archName);
     }
 
     private function isPortInUse(int $port): bool
