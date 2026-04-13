@@ -4,6 +4,40 @@ AstraHTTP PHP is a production-oriented wrapper around a Go-based transport engin
 
 This document explains the package in detail: installation, architecture, API surface, request options, response methods, streaming, retries, WebSocket / SSE usage, multipart uploads, and practical examples.
 
+
+## Features
+
+- **High Performance**
+  Built-in goroutine pool efficiently handles large numbers of asynchronous requests with minimal overhead.
+
+- **Custom Header Ordering (fhttp)**
+  Full control over HTTP header order to accurately mimic real browsers and bypass strict fingerprinting systems.
+
+- **Proxy Support**
+  Supports multiple proxy protocols:
+  - SOCKS4
+  - SOCKS5
+  - SOCKS5h (DNS over proxy)
+
+- **JA3 Fingerprint Configuration**
+  Customize TLS fingerprints (JA3) to emulate specific clients such as browsers or mobile apps.
+
+- **HTTP/3 & QUIC Support**
+  Native support for modern transport protocols for improved performance and lower latency.
+
+- **WebSocket Client**
+  Built-in WebSocket client for real-time, bidirectional communication.
+
+- **Server-Sent Events (SSE)**
+  Native support for consuming streaming HTTP events.
+
+- **Connection Reuse**
+  Persistent connections (keep-alive) to reduce latency and improve throughput.
+
+- **JA4 Fingerprinting**
+  Advanced TLS fingerprinting beyond JA3 for more precise client emulation.
+
+
 ---
 
 ## 1. Requirements
