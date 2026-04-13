@@ -3,7 +3,27 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+$autoloadCandidates = [
+    dirname(__DIR__, 3) . '/autoload.php', 
+    dirname(__DIR__, 4) . '/autoload.php',
+    __DIR__ . '/../../autoload.php',
+    __DIR__ . '/../../../autoload.php',
+];
+
+$autoload = null;
+foreach ($autoloadCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $autoload = $candidate;
+        break;
+    }
+}
+
+if ($autoload === null) {
+    fwrite(STDERR, "Error: Unable to locate Composer autoload.php\n");
+    exit(1);
+}
+
+require $autoload;
 
 use Astra\Http\WorkerDownloader;
 
