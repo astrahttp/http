@@ -21,6 +21,7 @@ The library expects the worker binary to be available in a platform-specific loc
 
 ```bash
 composer require astrahttp/http
+php vendor/bin/astrahttp install
 ```
 
 ### Installing from source
