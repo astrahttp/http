@@ -29,7 +29,7 @@ final class Client
 
     public function __construct(array $config = [])
     {
-        $port = (int)($config['port'] ?? 0);
+        $port = (int)($config['port'] ?? 9119);
         $debug = (bool)($config['debug'] ?? false);
         $workerPath = $config['workerPath'] ?? null;
 

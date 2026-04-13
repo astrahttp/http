@@ -161,9 +161,7 @@ final class WorkerRuntime
             2 => $this->debug ? ['pipe', 'w'] : ['file', $nullDevice, 'a'],
         ];
 
-        $command = PHP_OS_FAMILY === 'Windows'
-            ? 'cmd /C start "" /B ' . escapeshellarg($execPath) . ' 1>NUL 2>NUL'
-            : 'sh -c ' . escapeshellarg('exec env WS_PORT=' . (string)$this->port . ' ' . escapeshellarg($execPath) . ' >/dev/null 2>&1 < /dev/null &');
+        $command = [$execPath];
 
         $this->process = proc_open($command, $descriptors, $pipes, null, $env);
 
