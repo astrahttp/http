@@ -1,64 +1,155 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Astra\Http;
 
-class WorkerDownloader {
-    const REPO = "astrahttp/http"; 
-    const VERSION = "v1.0.0";
+use RuntimeException;
 
-    public static function install() {
-        $os = strtolower(PHP_OS);
-        $arch = php_uname('m');
-        $binDir = __DIR__ . '/../bin';
+final class WorkerDownloader
+{
+    private const REPO = 'astrahttp/http';
+    private const VERSION = 'v1.0.0';
 
-        if (!is_dir($binDir)) mkdir($binDir, 0755, true);
-        $osName = 'linux';
-        $ext = '';
+    public static function install(): void
+    {
+        $os = self::getOsName();
+        $arch = self::getArchName();
 
-        if (strpos($os, 'win') !== false) {
-            $osName = 'win';
-            $ext = '.exe';
-        } elseif (strpos($os, 'darwin') !== false) {
-            $osName = 'mac';
-        } elseif (strpos($os, 'freebsd') !== false) {
-            $osName = 'freebsd';
-        } elseif (file_exists('/system/bin/app_process')) {
-            $osName = 'android';
-        }
+        $execDir = self::getExecDir();
+        $fileName = self::buildFileName($os, $arch);
+        $savePath = $execDir . DIRECTORY_SEPARATOR . $fileName;
+        $url = self::buildDownloadUrl($fileName);
 
-        $archMap = [
-            'x86_64'  => 'amd64',
-            'amd64'   => 'amd64',
-            'aarch64' => 'arm64',
-            'arm64'   => 'arm64',
-            'armv7l'  => 'arm',
-            'i386'    => '386'
-        ];
-        $currentArch = $archMap[$arch] ?? 'amd64';
+        self::ensureDirectory($execDir);
 
-        $fileName = "astra-worker-{$osName}-{$currentArch}{$ext}";
-        $url = "https://github.com/" . self::REPO . "/releases/download/" . self::VERSION . "/{$fileName}";
-        $savePath = "{$binDir}/{$fileName}";
-
-        echo "Checking for AstraHTTP Worker: {$fileName}...\n";
-
-        if (file_exists($savePath)) {
-            echo "Worker already exists. Skipping download.\n";
+        if (is_file($savePath) && is_executable($savePath)) {
             return;
         }
 
-        echo "Downloading binary from GitHub...\n";
-        $context = stream_context_create(["http" => ["header" => "User-Agent: AstraHTTP-Installer\r\n"]]);
+        $content = self::download($url);
+
+        if ($content === '') {
+            throw new RuntimeException('Downloaded worker is empty.');
+        }
+
+        if (file_put_contents($savePath, $content, LOCK_EX) === false) {
+            throw new RuntimeException("Could not write worker to: {$savePath}");
+        }
+
+        if (PHP_OS_FAMILY !== 'Windows') {
+            @chmod($savePath, 0755);
+        }
+
+        if (!is_file($savePath)) {
+            throw new RuntimeException('Worker installation failed.');
+        }
+    }
+
+    public static function getBinaryPath(): string
+    {
+        $os = self::getOsName();
+        $arch = self::getArchName();
+
+        return self::getExecDir() . DIRECTORY_SEPARATOR . self::buildFileName($os, $arch);
+    }
+
+    public static function isInstalled(): bool
+    {
+        $path = self::getBinaryPath();
+
+        return is_file($path) && (PHP_OS_FAMILY === 'Windows' || is_executable($path));
+    }
+
+    public static function ensureInstalled(): void
+    {
+        if (!self::isInstalled()) {
+            self::install();
+        }
+    }
+
+    private static function getExecDir(): string
+    {
+        return realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR . 'exec';
+    }
+
+    private static function getOsName(): string
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            return 'win';
+        }
+
+        if (PHP_OS_FAMILY === 'Darwin') {
+            return 'mac';
+        }
+
+        if (PHP_OS_FAMILY === 'BSD') {
+            return 'freebsd';
+        }
+
+        if (file_exists('/system/bin/app_process')) {
+            return 'android';
+        }
+
+        return 'linux';
+    }
+
+    private static function getArchName(): string
+    {
+        $arch = strtolower((string) php_uname('m'));
+
+        return match ($arch) {
+            'x86_64', 'amd64' => 'amd64',
+            'aarch64', 'arm64' => 'arm64',
+            'armv7l', 'armv7' => 'arm',
+            'i386', 'i686' => '386',
+            default => 'amd64',
+        };
+    }
+
+    private static function buildFileName(string $os, string $arch): string
+    {
+        $ext = $os === 'win' ? '.exe' : '';
+
+        return "astra-worker-{$os}-{$arch}{$ext}";
+    }
+
+    private static function buildDownloadUrl(string $fileName): string
+    {
+        return sprintf(
+            'https://github.com/%s/releases/download/%s/%s',
+            self::REPO,
+            self::VERSION,
+            $fileName
+        );
+    }
+
+    private static function download(string $url): string
+    {
+        $context = stream_context_create([
+            'http' => [
+                'header' => "User-Agent: AstraHTTP-Installer\r\n",
+                'timeout' => 120,
+            ],
+        ]);
+
         $content = @file_get_contents($url, false, $context);
 
         if ($content === false) {
-            echo "Error: Could not download binary for {$osName}/{$currentArch}.\n";
+            throw new RuntimeException("Could not download binary: {$url}");
+        }
+
+        return $content;
+    }
+
+    private static function ensureDirectory(string $dir): void
+    {
+        if (is_dir($dir)) {
             return;
         }
 
-        if (file_put_contents($savePath, $content)) {
-            if ($osName !== 'win') chmod($savePath, 0755);
-            echo "Successfully installed AstraHTTP Worker.\n";
+        if (!@mkdir($dir, 0755, true) && !is_dir($dir)) {
+            throw new RuntimeException("Could not create directory: {$dir}");
         }
     }
 }

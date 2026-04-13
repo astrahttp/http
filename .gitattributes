@@ -5,7 +5,7 @@
 /go.sum export-ignore
 
 
-/bin/ export-ignore
+/exec/ export-ignore
 
 .gitignore export-ignore
 .gitattributes export-ignore

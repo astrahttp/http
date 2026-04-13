@@ -43,14 +43,14 @@ final class WorkerRuntime
         return (int) $port;
     }
 
-    private function getExecutablePath(): string
+    private function getExecutablePathOld(): string
     {
         if ($this->executablePath !== null) {
             return $this->executablePath;
         }
 
         // Resolves to the 'bin' folder at the root of the project
-        $baseDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'bin';
+        $baseDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'exec';
         $os = PHP_OS_FAMILY;
         $arch = php_uname('m');
 
@@ -63,6 +63,39 @@ final class WorkerRuntime
         }
 
         return $baseDir . DIRECTORY_SEPARATOR . ((str_contains($arch, 'aarch64') || str_contains($arch, 'arm64')) ? 'index-arm64' : 'index');
+    }
+
+    private function getExecutablePath(): string
+    {
+        if ($this->executablePath !== null) {
+            return $this->executablePath;
+        }
+    
+        $baseDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'exec';
+        $os = PHP_OS_FAMILY;
+        $arch = strtolower((string) php_uname('m'));
+    
+        $archName = match (true) {
+            str_contains($arch, 'aarch64'),
+            str_contains($arch, 'arm64') => 'arm64',
+    
+            str_contains($arch, 'armv7'),
+            str_contains($arch, 'arm') => 'arm',
+    
+            str_contains($arch, 'i386'),
+            str_contains($arch, 'i686') => '386',
+    
+            default => 'amd64',
+        };
+    
+        $fileName = match ($os) {
+            'Windows' => "astra-worker-win-{$archName}.exe",
+            'Darwin'  => "astra-worker-mac-{$archName}",
+            'BSD'     => "astra-worker-freebsd-{$archName}",
+            default   => "astra-worker-linux-{$archName}",
+        };
+    
+        return $this->executablePath = $baseDir . DIRECTORY_SEPARATOR . $fileName;
     }
 
     private function isPortInUse(int $port): bool
