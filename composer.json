@@ -11,6 +11,14 @@
         "amphp/websocket-client": "^v2.0",
         "revolt/event-loop": "^v1.0"
     },
+    "scripts": {
+        "post-install-cmd": [
+            "Astra\\Http\\WorkerDownloader::install"
+        ],
+        "post-update-cmd": [
+            "Astra\\Http\\WorkerDownloader::install"
+        ]
+    },
     "autoload": {
         "psr-4": {
             "Astra\\Http\\": "src/"
