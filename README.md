@@ -10,8 +10,7 @@ This document explains the package in detail: installation, architecture, API su
 
 - PHP 8.2 or newer
 - Composer
-
-The library expects the worker binary to be available in a platform-specific location or passed explicitly through configuration.
+- Supported platform
 
 ---
 
