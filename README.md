@@ -11,13 +11,13 @@ This document explains the package in detail: installation, architecture, API su
 - PHP 8.2 or newer
 - Composer
 - One of the supported platforms:
-  - Android arm64
-  - Ubuntu and other Linux distributions (amd64, arm, arm64)
-  - FreeBSD amd64
-  - macOS amd64 and arm64
-  - Windows 386 and amd64
+  - Android (arm64 / aarch64)
+  - Ubuntu and other Linux distributions (amd64 / x86_64, arm, arm64 / aarch64)
+  - FreeBSD (amd64 / x86_64)
+  - macOS (amd64 / x86_64, arm64)
+  - Windows (x86 / 386, amd64 / x86_64)
 
-> **Note:** `x86_64` is commonly referred to as `amd64`.
+> **Note:** `amd64` and `x86_64` refer to the same architecture, and `arm64` is also known as `aarch64`.
 ---
 
 ## 2. Installation
