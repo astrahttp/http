@@ -17,17 +17,20 @@ The library expects the worker binary to be available in a platform-specific loc
 
 ## 2. Installation
 
-### Using Composer in a project
+### Using Composer in a project (Recommended)
 
 ```bash
 composer require astrahttp/http
 php vendor/bin/astrahttp install
 ```
 
-### Installing from source
+### Installing from source 
+- This method installs a **development version (unstable)** and is not recommended for production.
 
 ```bash
-composer install
+composer config repositories.astrahttp vcs https://github.com/astrahttp/http.git
+composer require astrahttp/http:1.x-dev
+php vendor/bin/astrahttp install
 ```
 
 ### Autoloading
