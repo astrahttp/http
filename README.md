@@ -88,6 +88,271 @@ The main entry points are:
 
 ---
 
+
+---
+## Quick start
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Astra\Http\Client;
+
+$client = new Client();
+
+$req = $client->get('https://httpbin.org/get');
+
+// do anything 
+
+$response = $req->await(); // Real asynchronous 
+
+echo "Status: ". $response->status . PHP_EOL;
+echo "Body: ". $response->body;
+
+// You can do $response->text();
+// You can do $response->json();
+
+$client->close(); //Terminate client
+```
+
+## With RequestOptions
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Astra\Http\Client;
+use Astra\Http\Contract\RequestOptions;
+
+$client = new Client(['port' => 9119]);
+
+try {
+    $handle = $client->get('https://httpbin.org/get', new RequestOptions([
+        'responseType' => 'json',
+    ]));
+
+    $response = $handle->await();
+    echo $response->text();
+} finally {
+    $client->close();
+}
+```
+
+## RequestOptions
+
+> **Note:** When using `requestAsync($options)`, the `method` option is used.
+> When using shortcut methods such as `get()`, `post()`, `put()`, etc., the HTTP method is determined by the method name itself, and any provided `method` value is ignored.
+
+| Option               | Type                      | Description                                                                               | Example                               |
+| -------------------- | ------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------- |
+| `headers`            | `?array<string, string>`  | Custom headers to send with the request.                                                  | `['Authorization' => 'Bearer token']` |
+| `cookies`            | `array \| object \| null` | Cookies as array or object. They are normalized internally before transport.              | `['session' => 'abc123']`             |
+| `body`               | `mixed`                   | Request body. Supports string, array (JSON/multipart), `Stringable`, or `ReadableStream`. | `['key' => 'value']`                  |
+| `responseType`       | `?string`                 | Response format: `json`, `text`, `arraybuffer`, `blob`, `stream`.                         | `'json'`                              |
+| `ja3`                | `?string`                 | JA3 TLS fingerprint.                                                                      | `'771,4865-4867,...'`                 |
+| `ja4r`               | `?string`                 | Raw JA4R fingerprint.                                                                     | `'t13d1516h2_002f,...'`               |
+| `http2Fingerprint`   | `?string`                 | Custom HTTP/2 fingerprint.                                                                | `'1:65536;4:131072;...'`              |
+| `quicFingerprint`    | `?string`                 | QUIC fingerprint for HTTP/3.                                                              | `'16030106f2...'`                     |
+| `disableGrease`      | `?bool`                   | Disables GREASE values in TLS handshake.                                                  | `true`                                |
+| `userAgent`          | `?string`                 | User-Agent header value.                                                                  | `'Mozilla/5.0 ...'`                   |
+| `serverName`         | `?string`                 | TLS SNI (Server Name Indication).                                                         | `'example.com'`                       |
+| `proxy`              | `?string`                 | Proxy URL. Supports `http`, `socks4`, `socks5`, and `socks5h`.                            | `'http://user:pass@host:443'`         |
+| `timeout`            | `?int`                    | Timeout in seconds before the request fails.                                              | `5`                                   |
+| `disableRedirect`    | `?bool`                   | If `true`, redirects will not be followed.                                                | `true`                                |
+| `headerOrder`        | `?array<int, string>`     | Custom header order.                                                                      | `['host', 'connection']`              |
+| `orderAsProvided`    | `?bool`                   | Sends headers exactly as provided without reordering.                                     | `true`                                |
+| `insecureSkipVerify` | `?bool`                   | Skips TLS certificate verification.                                                       | `false`                               |
+| `forceHTTP1`         | `?bool`                   | Forces HTTP/1.1.                                                                          | `false`                               |
+| `forceHTTP3`         | `?bool`                   | Forces HTTP/3.                                                                            | `false`                               |
+| `protocol`           | `?string`                 | Protocol override: `http1`, `http2`, `http3`, `websocket`, `sse`.                         | `'http2'`                             |
+| `maxRetries`         | `?int`                    | Maximum retry attempts. Default: `2`.                                                     | `3`                                   |
+| `retryDelayMs`       | `?int`                    | Delay between retries in milliseconds. Default: `250`.                                    | `500`                                 |
+| `retryable`          | `?bool`                   | Whether the request is retryable.                                                         | `true`                                |
+| `onHeaders`          | `mixed`                   | Callback triggered when headers are received.                                             | `fn($headers) => null`                |
+| `onChunk`            | `mixed`                   | Callback triggered on each response chunk.                                                | `fn($chunk) => null`                  |
+| `onComplete`         | `mixed`                   | Callback triggered when request completes.                                                | `fn($res) => null`                    |
+| `onError`            | `mixed`                   | Callback triggered on error.                                                              | `fn($e) => null`                      |
+
+### Example with all options
+
+```php
+$options = [
+    'headers' => [
+        'Authorization' => 'Bearer token',
+        'Accept' => 'application/json',
+    ],
+    'cookies' => [
+        'session' => 'abc123',
+    ],
+    'body' => [
+        'key' => 'value',
+    ],
+    'responseType' => 'json',
+    'ja3' => '771,4865-4867,4866-49195,49199-52393-52392-49196-49200-49162-49161-49171-49172-51-57-47-53-10,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0',
+    'ja4r' => 't13d1516h2_002f,0035,009c,009d,1301,1302,1303,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_0000,0005,000a,000b,000d,0012,0017,001b,0023,002b,002d,0033,44cd,fe0d,ff01_0403,0804,0401,0503,0805,0501,0806,0601',
+    'http2Fingerprint' => '1:65536;4:131072;5:16384|12517377|3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241|m,p,a,s',
+    'quicFingerprint' => '16030106f2010006ee03039a2b98d81139db0e128ea09eff...',
+    'disableGrease' => false,
+    'userAgent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0',
+    'serverName' => 'example.com',
+    'proxy' => 'http://username:password@hostname.com:443',
+    'timeout' => 5,
+    'disableRedirect' => true,
+    'headerOrder' => ['cache-control', 'connection', 'host'],
+    'orderAsProvided' => true,
+    'insecureSkipVerify' => false,
+    'forceHTTP1' => false,
+    'forceHTTP3' => false,
+    'protocol' => 'http2',
+    'maxRetries' => 3,
+    'retryDelayMs' => 500,
+    'retryable' => true,
+    'onHeaders' => fn ($headers) => null,
+    'onChunk' => fn ($chunk) => print($chunk),
+    'onComplete' => fn ($res) => null,
+    'onError' => fn ($e) => null,
+];
+```
+
+---
+
+##  Body Types
+
+`body` can be provided in several forms. The library normalizes it automatically and may set `Content-Type` depending on the value.
+
+| Body type                   | Behavior                                                     | Content-Type handling                                                                     | Example                                                                                       |
+| --------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `string`                    | Sent as-is.                                                  | Not changed automatically. Set it manually when needed.                                   | `'hello world'`                                                                               |
+| `string` (URL-encoded form) | Sent as-is for `application/x-www-form-urlencoded` payloads. | Set `Content-Type: application/x-www-form-urlencoded; charset=UTF-8` manually.            | `'url=https://www.instagram.com/p/DWABOWek7xz/'`                                              |
+| `array` (JSON)              | Encoded automatically as JSON.                               | If `Content-Type` is not already set, the library adds `application/json; charset=utf-8`. | `['name' => 'Ali', 'age' => 30]`                                                              |
+| `array` (multipart form)    | Encoded automatically as multipart/form-data.                | Multipart headers are generated automatically and merged into the request headers.        | `['_multipart' => true, ['name' => 'file', 'path' => '/tmp/a.txt']]`                          |
+| `Stringable`                | Converted to string and sent as-is.                          | Not changed automatically.                                                                | `new class implements Stringable { public function __toString(): string { return 'data'; } }` |
+| `ReadableStream`            | Sent as a stream without conversion.                         | Not changed automatically.                                                                | `$stream`                                                                                     |
+| `null`                      | No body is sent.                                             | Not applicable.                                                                           | `null`                                                                                        |
+
+### String body
+
+Use this when you already have the exact payload you want to send.
+
+```php
+$options = [
+    'headers' => [
+        'Content-Type' => 'text/plain; charset=utf-8',
+    ],
+    'body' => 'hello world',
+];
+```
+
+### URL-encoded form body
+
+Use this when you want to send a raw `application/x-www-form-urlencoded` payload.
+
+```php
+$options = [
+    'headers' => [
+        'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+    ],
+    'body' => 'url=https://www.github.com.com/',
+];
+```
+
+In this case, the body is sent as a plain string, and the library does not JSON-encode it.
+The `Content-Type` header must be set manually.
+
+### Array as JSON
+
+When `body` is an array, it is encoded to JSON automatically.
+
+```php
+$options = [
+    'body' => [
+        'name' => 'Ali',
+        'age' => 30,
+    ],
+];
+```
+
+If `Content-Type` is not already set, the library adds:
+
+```http
+Content-Type: application/json; charset=utf-8
+```
+
+### Multipart array
+
+If the array looks like multipart data, it is encoded as multipart automatically.
+
+```php
+$options = [
+    'body' => [
+        '_multipart' => true,
+        [
+            'name' => 'file',
+            'path' => '/tmp/avatar.png',
+            'mime' => 'image/png',
+        ],
+        [
+            'name' => 'title',
+            'content' => 'My upload',
+        ],
+    ],
+];
+```
+
+Multipart headers are generated automatically and merged into the request headers.
+
+### Stringable
+
+Any object implementing `Stringable` is converted to string.
+
+```php
+$body = new class implements Stringable {
+    public function __toString(): string
+    {
+        return 'payload from object';
+    }
+};
+
+$options = [
+    'body' => $body,
+];
+```
+
+### ReadableStream
+
+Use a stream for streamed or large content.
+
+```php
+$options = [
+    'body' => $stream,
+];
+```
+
+### Null
+
+No body is sent.
+
+```php
+$options = [
+    'body' => null,
+];
+```
+
+### Content-Type behavior
+
+* `string`, `Stringable`, and `ReadableStream` are sent as provided.
+* `array` is encoded as JSON by default.
+* Multipart arrays generate multipart headers automatically.
+* If `Content-Type` is already present, it is preserved.
+* `Accept` is separate from `Content-Type`:
+
+  * `Content-Type` describes the request body.
+  * `Accept` describes the response format you want.
+
+---
+
 ## 3. Package overview
 
 The library is structured around four layers:
