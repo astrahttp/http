@@ -784,7 +784,7 @@ Both clients will share the same worker runtime in the same process space.
 ### Basic WebSocket request
 
 ```php
-$socket = $client->websocketAsync('wss://echo.example.com/socket', new RequestOptions([
+$socket = $client->websocket('wss://echo.example.com/socket', new RequestOptions([
     'protocol' => 'websocket',
 ]))->await();
 ```
@@ -804,7 +804,7 @@ The library exposes the protocol field so your worker can treat the request as a
 ### Basic SSE request
 
 ```php
-$sse = $client->sseAsync('https://example.com/events', new RequestOptions([
+$sse = $client->sse('https://example.com/events', new RequestOptions([
     'protocol' => 'sse',
 ]))->await();
 ```
@@ -1006,7 +1006,7 @@ $response = $client->get('https://example.com', new RequestOptions([
 ### Example E: event stream
 
 ```php
-$sse = $client->sseAsync('https://example.com/events')->await();
+$sse = $client->sse('https://example.com/events')->await();
 ```
 
 ---
