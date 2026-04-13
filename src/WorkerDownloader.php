@@ -73,7 +73,7 @@ final class WorkerDownloader
         return realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR . 'exec';
     }
 
-    private static function getOsName(): string
+    public static function getOsName(): string
     {
         if (PHP_OS_FAMILY === 'Windows') {
             return 'win';
@@ -94,7 +94,7 @@ final class WorkerDownloader
         return 'linux';
     }
 
-    private static function getArchName(): string
+    public static function getArchName(): string
     {
         $arch = strtolower((string) php_uname('m'));
 
@@ -107,7 +107,7 @@ final class WorkerDownloader
         };
     }
 
-    private static function buildFileName(string $os, string $arch): string
+    public static function buildFileName(string $os, string $arch): string
     {
         $ext = $os === 'win' ? '.exe' : '';
 

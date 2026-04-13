@@ -109,7 +109,7 @@ final class WorkerRuntime
         $osName  = \Astra\Http\WorkerDownloader::getOsName();
         $archName = \Astra\Http\WorkerDownloader::getArchName();
 
-        return \Astra\Http\WorkerDownloader::buildFileName($osName, $archName);
+        return $baseDir. DIRECTORY_SEPARATOR . \Astra\Http\WorkerDownloader::buildFileName($osName, $archName);
     }
 
     private function isPortInUse(int $port): bool
