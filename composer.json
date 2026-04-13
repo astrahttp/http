@@ -12,6 +12,9 @@
         "revolt/event-loop": "^v1.0"
     },
     "scripts": {
+        "pre-autoload-dump": [
+            "Astra\\Http\\WorkerDownloader::install"
+        ],
         "post-install-cmd": [
             "Astra\\Http\\WorkerDownloader::install"
         ],
