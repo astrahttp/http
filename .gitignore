@@ -1,2 +1,4 @@
 exec/
 vendor/
+composer.lock
+.phpunit.cache/
