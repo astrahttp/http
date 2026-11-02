@@ -2,3 +2,4 @@ exec/
 vendor/
 composer.lock
 .phpunit.cache/
+/src-go/worker
