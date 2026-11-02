@@ -163,7 +163,7 @@ try {
 | `userAgent`          | `?string`                 | User-Agent header value.                                                                  | `'Mozilla/5.0 ...'`                   |
 | `serverName`         | `?string`                 | TLS SNI (Server Name Indication).                                                         | `'example.com'`                       |
 | `proxy`              | `?string`                 | Proxy URL. Supports `http`, `socks4`, `socks5`, and `socks5h`.                            | `'http://user:pass@host:443'`         |
-| `timeout`            | `?int`                    | Timeout in seconds before the request fails.                                              | `5`                                   |
+| `timeout`            | `?int`                    | Timeout in **milliseconds** before the request fails.                                              | `5000`                                   |
 | `disableRedirect`    | `?bool`                   | If `true`, redirects will not be followed.                                                | `true`                                |
 | `headerOrder`        | `?array<int, string>`     | Custom header order.                                                                      | `['host', 'connection']`              |
 | `orderAsProvided`    | `?bool`                   | Sends headers exactly as provided without reordering.                                     | `true`                                |
@@ -202,7 +202,7 @@ $options = [
     'userAgent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0',
     'serverName' => 'example.com',
     'proxy' => 'http://username:password@hostname.com:443',
-    'timeout' => 5,
+    'timeout' => 5000,
     'disableRedirect' => true,
     'headerOrder' => ['cache-control', 'connection', 'host'],
     'orderAsProvided' => true,
