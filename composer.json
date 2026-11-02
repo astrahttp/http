@@ -1,6 +1,6 @@
 {
   "name": "astrahttp/http",
-  "description": "A high-performance, async-first HTTP client for PHP 8.2+ powered by CycleTLS. Features shared worker management, JA3/JA4 fingerprinting, and full streaming support.",
+  "description": "Async PHP HTTP client with browser-grade TLS/HTTP fingerprint control (JA3/JA4), backed by a Go transport. Supports HTTP/2, HTTP/3, streaming, WebSockets and SSE.",
   "keywords": [
     "php",
     "security",
@@ -34,10 +34,17 @@
       "src/functions.php"
     ]
   },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
   "autoload-dev": {
     "psr-4": {
       "Astra\\Http\\Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "lint": "find src -name '*.php' -print0 | xargs -0 -n1 php -l"
   },
   "bin": [
     "bin/astrahttp"

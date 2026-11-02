@@ -27,9 +27,13 @@ final class MultipartEncoder
                 $content = '';
 
                 if (isset($value['path'])) {
-                    $content = file_get_contents((string) $value['path']);
+                    $path = (string) $value['path'];
+                    if (!is_file($path) || !is_readable($path)) {
+                        throw new AstraException('Failed to read multipart file: ' . $path);
+                    }
+                    $content = file_get_contents($path);
                     if ($content === false) {
-                        throw new AstraException('Failed to read multipart file: ' . $value['path']);
+                        throw new AstraException('Failed to read multipart file: ' . $path);
                     }
                 } else {
                     $content = (string)($value['content'] ?? '');

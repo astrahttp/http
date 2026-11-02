@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible problem in AstraHTTP
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please provide a minimal
+        reproduction so the issue can be investigated quickly.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the actual behavior and the behavior you expected.
+      placeholder: "The request to ... returned ... but I expected ..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The smallest code snippet that reproduces the problem.
+      render: php
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: "8.3.x"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: OS and architecture
+      placeholder: "Ubuntu 24.04 / x86_64"
+    validations:
+      required: true
+  - type: input
+    id: package-version
+    attributes:
+      label: AstraHTTP version
+      placeholder: "2.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / errors
+      description: Paste any exception messages or worker output.
+      render: shell

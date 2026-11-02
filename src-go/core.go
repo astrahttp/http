@@ -129,8 +129,6 @@ var debugLogger = log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfi
 
 // ready Request
 func processRequest(request cycleTLSRequest) (result fullRequest) {
-	ctx, cancel := context.WithCancel(context.Background())
-
 	var browser = Browser{
 		// TLS fingerprinting options
 		JA3:              request.Options.Ja3,
@@ -168,6 +166,11 @@ func processRequest(request cycleTLSRequest) (result fullRequest) {
 		// HTTP/3 requests are now supported
 		return dispatchHTTP3Request(request)
 	}
+
+	// Only the default HTTP path below uses a cancellable context; the
+	// protocol-specific handlers above return early and manage their own.
+	// Creating it here avoids leaking a context on those early-return paths.
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// Default to true for connection reuse
 	enableConnectionReuse := true
@@ -917,21 +920,22 @@ func dispatchSSEAsync(res fullRequest, chanWrite chan []byte) {
 	}
 
 	// Read SSE events
+sseLoop:
 	for {
 		select {
 		case <-res.req.Context().Done():
 			debugLogger.Printf("SSE request %s was canceled", res.options.RequestID)
-			break
+			break sseLoop
 
 		default:
 			event, err := sseResp.NextEvent()
 			if err != nil {
 				if err == io.EOF {
 					// Normal end of stream
-					break
+					break sseLoop
 				}
 				debugLogger.Printf("SSE read error: %s", err.Error())
-				break
+				break sseLoop
 			}
 
 			if event == nil {
@@ -1121,6 +1125,7 @@ func dispatchWebSocketAsync(res fullRequest, chanWrite chan []byte) {
 	}
 
 	// Read WebSocket messages
+wsLoop:
 	for {
 		select {
 		case <-res.req.Context().Done():
@@ -1132,7 +1137,7 @@ func dispatchWebSocketAsync(res fullRequest, chanWrite chan []byte) {
 			if err != nil {
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 					// Normal close
-					break
+					break wsLoop
 				}
 				debugLogger.Printf("WebSocket read error: %s", err.Error())
 				return
