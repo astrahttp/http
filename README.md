@@ -1,5 +1,9 @@
 # AstraHTTP PHP
 
+[![CI](https://github.com/astrahttp/http/actions/workflows/ci.yml/badge.svg)](https://github.com/astrahttp/http/actions/workflows/ci.yml)
+[![Latest Stable Version](https://img.shields.io/packagist/v/astrahttp/http.svg)](https://packagist.org/packages/astrahttp/http)
+[![License](https://img.shields.io/packagist/l/astrahttp/http.svg)](LICENSE)
+
 AstraHTTP PHP is a production-oriented wrapper around a Go-based transport engine. It is designed for high-concurrency HTTP traffic with shared worker management, TLS fingerprint customization, streaming response handling, multipart form encoding, retry support, and WebSocket / SSE protocol hooks.
 
 This document explains the package in detail: installation, architecture, API surface, request options, response methods, streaming, retries, WebSocket / SSE usage, multipart uploads, and practical examples.
